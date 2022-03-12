@@ -236,8 +236,8 @@ def train(patch, mask, patch_init, patch_shape, train_loader, flow_net, epoch, l
 
         # measure data loading time
         data_time.update(time.time() - end)
-        tgt_img_var = Variable(tgt_img.cuda())
-        ref_past_img_var = Variable(ref_img[0].cuda())
+        tgt_img_var = Variable(tgt_img.cuda()) #target_image
+        ref_past_img_var = Variable(ref_img[0].cuda())#reference image
         ref_future_img_var = Variable(ref_img[1].cuda())
 
         if type(flow_net).__name__ == 'Back2Future':
