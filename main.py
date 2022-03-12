@@ -241,7 +241,7 @@ def train(patch, mask, patch_init, patch_shape, train_loader, flow_net, epoch, l
         ref_future_img_var = Variable(ref_img[1].cuda())
 
         if type(flow_net).__name__ == 'Back2Future':
-            flow_pred_var = flow_net(ref_past_img_var, tgt_img_var, ref_future_img_var)
+            flow_pred_var = flow_net(ref_past_img_var, tgt_img_var, ref_future_img_var)#利用tgt_img,ref_img 生成flow_net
         else:
             flow_pred_var = flow_net(tgt_img_var, ref_future_img_var)
         data_shape = tgt_img.cpu().numpy().shape
@@ -256,6 +256,8 @@ def train(patch, mask, patch_init, patch_shape, train_loader, flow_net, epoch, l
         patch, mask = patch.cuda(), mask.cuda()
         patch_init = patch_init.cuda()
         patch_var, mask_var = Variable(patch), Variable(mask)
+        
+        
         patch_init_var = Variable(patch_init).cuda()
 
         target_var = Variable(-1*flow_pred_var.data.clone(), requires_grad=True).cuda()
@@ -337,15 +339,15 @@ def attack(flow_net, tgt_img_var, ref_past_img_var, ref_future_img_var, patch_va
             adv_flow_out_var = flow_net(adv_tgt_img_var, adv_ref_future_img_var)
 
         loss_data = (1 - nn.functional.cosine_similarity(adv_flow_out_var, target_var )).mean()
-        loss_reg = nn.functional.l1_loss(torch.mul(mask_var,just_the_patch), torch.mul(mask_var, patch_init_var))
+        loss_reg = nn.functional.l1_loss(torch.mul(mask_var,just_the_patch), torch.mul(mask_var, patch_init_var))#回归损失
         loss = (1-args.alpha)*loss_data + args.alpha*loss_reg
 
         loss.backward()
 
-        adv_tgt_img_grad = adv_tgt_img_var.grad.clone()
+        adv_tgt_img_grad = adv_tgt_img_var.grad.clone()#i(t)的梯度
         if type(flow_net).__name__ == 'Back2Future':
             adv_ref_past_img_grad = adv_ref_past_img_var.grad.clone()
-        adv_ref_future_img_grad = adv_ref_future_img_var.grad.clone()
+        adv_ref_future_img_grad = adv_ref_future_img_var.grad.clone()#i(t+1)的梯度
 
         adv_tgt_img_var.grad.data.zero_()
         if type(flow_net).__name__ == 'Back2Future':
