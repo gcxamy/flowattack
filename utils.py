@@ -132,7 +132,7 @@ def circle_transform(patch, mask, patch_init, data_shape, patch_shape, margin=0,
     mask = zoom(mask, zoom=(1,1,zoom_factor, zoom_factor), order=0)
     patch_init = zoom(patch_init, zoom=(1,1,zoom_factor, zoom_factor), order=1)
     patch_shape = patch.shape
-    m_size = patch.shape[-1]
+    m_size = patch.shape[-1] #返回w
     for i in range(x.shape[0]):
         # random rotation
         if not norotate:
